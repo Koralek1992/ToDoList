@@ -1,8 +1,14 @@
-let todoInput
-let errorInfo
-let addBtn
-let ulList
-let newTodo
+let todoInput // miejsce gdzie użytkownik wpisuje treść zadania
+let errorInfo // info o braku zadań
+let addBtn // przycisk Add - dodaje nowe elementy do listy 
+let ulList // lista zadań
+let newTodo // nowo dodany li/ nowe zadanie
+let popup // popup
+let popupInfo // tekst w popupie
+let todoToEdit // edytowany Todo
+let popupInput // input w popupie
+let popupAddBtn // przycisk zatwierdź
+let popupCloseBtn // prycisk anuluj
 
 const main = () => {
     prepareDOMElement()
@@ -14,10 +20,20 @@ const prepareDOMElement = () => {
     errorInfo = document.querySelector('.error-info')
     addBtn = document.querySelector('.btn-add')
     ulList = document.querySelector('.todolist ul')
+
+    popup = document.querySelector('.popup')
+    popupInfo = document.querySelector('.popup-info')
+    popupInput = document.querySelector('.popup-input')
+    popupAddBtn = document.querySelector('.accept')
+    popupCloseBtn = document.querySelector('.cancel')
 }
 
 const prepareDOMEvents = () => {
     addBtn.addEventListener('click', addNewTodo)
+    ulList.addEventListener('click', chechClick)
+    popupCloseBtn.addEventListener('click', closePopup)
+    popupAddBtn.addEventListener('click', changeTodoText)
+    todoInput.addEventListener('keyup',  enterKeyCheck)
 } 
 
 const addNewTodo = () => {
@@ -51,6 +67,55 @@ const createToolsArea = () => {
     deleteBtn.innerHTML = '<i class="fas fa-times"></i>'
 
     toolsPanel.append(completeBtn, editBtn, deleteBtn)
+}
+
+const chechClick = e => {
+    if(e.target.matches('.complete')) {
+      e.target.closest('li').classList.toggle('completed')
+      e.target.classList.toggle('completed')
+    } else if(e.target.matches('.edit')) {
+        editTodo(e)
+    } else if(e.target.matches('.delete')) {
+        deleteTodo(e)
+    }
+}
+
+const editTodo = e => {
+    todoToEdit = e.target.closest('li')
+    popupInput.value = todoToEdit.firstChild.textContent
+
+    console.log(todoToEdit.firstChild);
+    popup.style.display = 'flex'
+}
+const closePopup = () => {
+    popup.style.display = 'none'
+    popupInfo.textContent = ''
+}
+
+const changeTodoText = () => {
+    if(popupInput.value !== '') {
+       todoToEdit.firstChild.textContent = popupInput.value 
+       popup.style.display = 'none'
+       popupInfo.textContent = ''
+    } else {
+        popupInfo.textContent = 'Musisz podać jakąś treść!'
+    }
+}
+
+const deleteTodo = (e) => {
+    e.target.closest('li').remove()
+
+    const allTodo = ulList.querySelectorAll('li')
+
+    if(allTodo.length === 0) {
+        errorInfo.textContent = 'Brak zadań na liście.'
+    }
+}
+
+const enterKeyCheck = (e) => {
+    if(e.key === 'Enter') {
+        addNewTodo()
+    }
 }
 
 document.addEventListener('DOMContentLoaded', main)
